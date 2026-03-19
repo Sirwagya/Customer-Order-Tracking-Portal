@@ -91,14 +91,3 @@ src/
 ## 🎨 Design & Branding Details
 
 *   **Custom Fonts:** The platform utilizes the `OnceUponMe` custom `.woff2` fonts (loaded locally) alongside `Nunito` from Google Fonts.
-*   **Original Figma Design:** The original UI/UX design can be referenced [here](https://www.figma.com/design/LuF3MEnKMQCVbmrZPUaSeN/Customer-Order-Tracking-Portal).
-
-## 🤝 Contributing
-
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file for more information.
-
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
