@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
+
+/* Custom brand font from local assets */
+@font-face {
+  font-family: 'OnceUponMe';
+  src: url('../assets/4cf2300e9c8272f7-s.p.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'OnceUponMe';
+  src: url('../assets/eaead17c7dbfcd5d-s.p.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  body {
+    font-family: 'OnceUponMe', 'Nunito', sans-serif;
+    @apply bg-[#FDFBF7] text-slate-800;
+  }
+}
