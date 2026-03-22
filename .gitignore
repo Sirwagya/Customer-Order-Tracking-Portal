@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 supabase
+.antigravity
+.stitch
+
 
 # Editor directories and files
 .vscode/*

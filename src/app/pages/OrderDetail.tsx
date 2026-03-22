@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { Link, useParams } from "react-router";
 import { ChevronLeft, Download, MessageCircle, FileText, CheckCircle2, Circle } from "lucide-react";
+import { BookViewer } from "../components/book/BookViewer";
 
 export function OrderDetail() {
   const { id } = useParams();
+  const [isReviewOpen, setIsReviewOpen] = useState(false);
 
   // Mock data for the specific order
   const order = {
@@ -187,7 +190,7 @@ export function OrderDetail() {
                 <p className="text-sm font-medium text-white/90 uppercase tracking-widest drop-shadow-md">{order.type}</p>
               </div>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-3 mb-6">
               <div className="flex justify-between text-sm">
                 <span className="text-slate-500 font-medium">Format</span>
                 <span className="font-bold text-[#1E293B]">{order.type}</span>
@@ -197,6 +200,13 @@ export function OrderDetail() {
                 <span className="font-bold text-[#1E293B]">{order.childName}</span>
               </div>
             </div>
+            
+            <button
+              onClick={() => setIsReviewOpen(true)}
+              className="w-full inline-flex items-center justify-center px-4 py-3 border border-transparent rounded-xl shadow-[0_4px_10px_rgba(219,119,255,0.2)] text-sm font-bold text-white bg-gradient-to-r from-[#db77ff] to-[#971ec3] hover:shadow-[0_0_20px_rgba(219,119,255,0.5)] transition-all"
+            >
+              Review Your Book
+            </button>
           </div>
 
           {/* Need Help */}
@@ -214,6 +224,11 @@ export function OrderDetail() {
           </div>
         </div>
       </div>
+      
+      {/* Book Review Modal */}
+      {isReviewOpen && (
+        <BookViewer orderId={order.id} onClose={() => setIsReviewOpen(false)} />
+      )}
     </div>
   );
 }
