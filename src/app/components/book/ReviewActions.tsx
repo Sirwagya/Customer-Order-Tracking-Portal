@@ -3,12 +3,14 @@ import React from "react";
 interface ReviewActionsProps {
   readonly onRequestChanges: () => void;
   readonly onApprove: () => void;
+  readonly isSubmitting?: boolean;
   readonly className?: string;
 }
 
 export const ReviewActions: React.FC<ReviewActionsProps> = ({
   onRequestChanges,
   onApprove,
+  isSubmitting = false,
   className = "",
 }) => {
   return (
@@ -22,15 +24,17 @@ export const ReviewActions: React.FC<ReviewActionsProps> = ({
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
           <button
             onClick={onRequestChanges}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-full border-2 border-slate-200 text-[#1E293B] font-bold text-sm hover:bg-slate-50 active:scale-[0.98] transition-all"
+            disabled={isSubmitting}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-full border-2 border-slate-200 text-[#1E293B] font-bold text-sm hover:bg-slate-50 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Request Changes
+            {isSubmitting ? "Submitting…" : "Request Changes"}
           </button>
           <button
             onClick={onApprove}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-[#F5A623] text-white font-bold text-sm shadow-lg shadow-amber-500/30 hover:bg-amber-500 hover:scale-[1.02] active:scale-[0.98] transition-all"
+            disabled={isSubmitting}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-[#F5A623] text-white font-bold text-sm shadow-lg shadow-amber-500/30 hover:bg-amber-500 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Send to Print
+            {isSubmitting ? "Submitting…" : "Send to Print"}
           </button>
         </div>
       </div>

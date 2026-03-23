@@ -2,29 +2,40 @@ import { useState } from "react";
 import { Link, useParams } from "react-router";
 import { ChevronLeft, Download, MessageCircle, FileText, CheckCircle2, Circle } from "lucide-react";
 import { BookViewer } from "../components/book/BookViewer";
+import { getOrderById } from "../../data/ordersData";
 
 export function OrderDetail() {
   const { id } = useParams();
   const [isReviewOpen, setIsReviewOpen] = useState(false);
 
-  // Mock data for the specific order
-  const order = {
-    id: id || "ORD-84920",
-    type: "Combo", // Storybook / Movie / Combo
-    childName: "Emma",
-    date: "Oct 12, 2023",
-    status: "In Production",
-    estimatedDelivery: "Oct 24, 2023",
-    image: "https://images.unsplash.com/photo-1598618137594-8e7657a6ef6a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYWdpY2FsJTIwY2hpbGRyZW4lMjBib29rJTIwY292ZXJ8ZW58MXx8fHwxNzczOTM0ODQ2fDA&ixlib=rb-4.1.0&q=80&w=1080",
-  };
+  const order = getOrderById(id || "");
+
+  // Order not found state
+  if (!order) {
+    return (
+      <div className="max-w-4xl mx-auto text-center py-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <span className="text-6xl mb-6 block">🔍</span>
+        <h1 className="text-3xl font-extrabold text-[#1E293B] mb-4">Order Not Found</h1>
+        <p className="text-slate-500 font-medium text-lg mb-8">
+          We couldn't find an order with ID "{id}". It may have been removed or the link is incorrect.
+        </p>
+        <Link
+          to="/dashboard"
+          className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-bold rounded-xl text-white bg-[#F5A623] hover:bg-amber-500 shadow-lg shadow-amber-500/30 transition-all duration-200"
+        >
+          Back to Dashboard
+        </Link>
+      </div>
+    );
+  }
 
   const steps = [
     { label: "Order Placed", status: "completed" },
     { label: "Customization", status: "completed" },
-    { label: "In Production", status: "current" },
-    { label: "Quality Check", status: "pending" },
-    { label: "Shipped", status: "pending" },
-    { label: "Delivered", status: "pending" },
+    { label: "In Production", status: order.status === "In Production" || order.status === "Shipped" || order.status === "Delivered" ? "completed" : order.status === "Pending" ? "pending" : "current" },
+    { label: "Quality Check", status: order.status === "Shipped" || order.status === "Delivered" ? "completed" : order.status === "In Production" ? "current" : "pending" },
+    { label: "Shipped", status: order.status === "Delivered" ? "completed" : order.status === "Shipped" ? "current" : "pending" },
+    { label: "Delivered", status: order.status === "Delivered" ? "completed" : "pending" },
   ];
 
   const getStepIcon = (status: string) => {
@@ -42,6 +53,21 @@ export function OrderDetail() {
         return <Circle className="w-6 h-6 text-slate-300 fill-slate-50" />;
     }
   };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Delivered":
+        return "bg-green-100 text-green-700 border-green-200";
+      case "In Production":
+        return "bg-amber-100 text-amber-700 border-amber-200";
+      case "Shipped":
+        return "bg-blue-100 text-blue-700 border-blue-200";
+      default:
+        return "bg-slate-100 text-slate-700 border-slate-200";
+    }
+  };
+
+  const showBookReview = order.type === "Storybook" || order.type === "Combo";
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -68,7 +94,7 @@ export function OrderDetail() {
           <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-slate-100">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-xl font-extrabold text-[#1E293B]">Order Status</h2>
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-amber-100 text-amber-700 border border-amber-200">
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-bold border ${getStatusColor(order.status)}`}>
                 {order.status}
               </span>
             </div>
@@ -163,7 +189,7 @@ export function OrderDetail() {
               <div className="flex-1 text-center sm:text-left">
                 <h3 className="text-xl font-extrabold text-[#1E293B]">Digital Assets Available</h3>
                 <p className="text-slate-500 mt-1 font-medium">
-                  Download Emma's personalized movie and digital certificates.
+                  Download {order.childName}'s personalized movie and digital certificates.
                 </p>
               </div>
               <button className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-bold rounded-xl text-white bg-indigo-500 hover:bg-indigo-600 shadow-lg shadow-indigo-500/30 transition-all duration-200">
@@ -201,12 +227,14 @@ export function OrderDetail() {
               </div>
             </div>
             
-            <button
-              onClick={() => setIsReviewOpen(true)}
-              className="w-full inline-flex items-center justify-center px-4 py-3 border border-transparent rounded-xl shadow-[0_4px_10px_rgba(219,119,255,0.2)] text-sm font-bold text-white bg-gradient-to-r from-[#db77ff] to-[#971ec3] hover:shadow-[0_0_20px_rgba(219,119,255,0.5)] transition-all"
-            >
-              Review Your Book
-            </button>
+            {showBookReview && (
+              <button
+                onClick={() => setIsReviewOpen(true)}
+                className="w-full inline-flex items-center justify-center px-4 py-3 border border-transparent rounded-xl shadow-[0_4px_10px_rgba(219,119,255,0.2)] text-sm font-bold text-white bg-gradient-to-r from-[#db77ff] to-[#971ec3] hover:shadow-[0_0_20px_rgba(219,119,255,0.5)] transition-all"
+              >
+                Review Your Book
+              </button>
+            )}
           </div>
 
           {/* Need Help */}
@@ -227,7 +255,7 @@ export function OrderDetail() {
       
       {/* Book Review Modal */}
       {isReviewOpen && (
-        <BookViewer orderId={order.id} onClose={() => setIsReviewOpen(false)} />
+        <BookViewer orderId={order.id} childName={order.childName} onClose={() => setIsReviewOpen(false)} />
       )}
     </div>
   );

@@ -5,12 +5,32 @@ import logoImg from "../../assets/logo.webp";
 import bgImg from "../../assets/root_page_bg.webp";
 import googleIcon from "../../assets/search.webp";
 
+const DEMO_EMAIL = "sarah@onceuponme.com";
+const DEMO_PASSWORD = "magic123";
+
 export function Login() {
   const [isNewUser, setIsNewUser] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+
+    if (isNewUser) {
+      // For "Create Account" mode, just navigate (no real backend yet)
+      navigate("/dashboard");
+      return;
+    }
+
+    // Demo credential validation
+    if (email.toLowerCase() !== DEMO_EMAIL || password !== DEMO_PASSWORD) {
+      setError("Invalid email or password. Try sarah@onceuponme.com / magic123");
+      return;
+    }
+
     navigate("/dashboard");
   };
 
@@ -60,6 +80,12 @@ export function Login() {
             {isNewUser ? "Create Account" : "Welcome Back"}
           </h2>
 
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600 font-medium">
+              {error}
+            </div>
+          )}
+
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
               <label className="block text-sm font-bold text-[#1E293B] mb-2" htmlFor="email">
@@ -73,6 +99,8 @@ export function Login() {
                   id="email"
                   type="email"
                   required
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); setError(""); }}
                   className="block w-full pl-11 pr-3 py-3 border border-slate-200 rounded-xl leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#F5A623]/50 focus:border-[#F5A623] transition duration-150 ease-in-out font-medium text-slate-900"
                   placeholder="parent@email.com"
                 />
@@ -91,6 +119,8 @@ export function Login() {
                   id="password"
                   type="password"
                   required
+                  value={password}
+                  onChange={(e) => { setPassword(e.target.value); setError(""); }}
                   className="block w-full pl-11 pr-3 py-3 border border-slate-200 rounded-xl leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#F5A623]/50 focus:border-[#F5A623] transition duration-150 ease-in-out font-medium text-slate-900"
                   placeholder="••••••••"
                 />
@@ -130,7 +160,7 @@ export function Login() {
                 className="w-full flex justify-center py-3 px-4 border-2 border-slate-100 rounded-xl text-sm font-bold text-[#1E293B] bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F5A623] transition-all duration-200"
               >
                 <img src={googleIcon} alt="Google" className="w-5 h-5 mr-2" />
-                Sign up with Google
+                {isNewUser ? "Sign up with Google" : "Sign in with Google"}
               </button>
             </div>
           </div>
@@ -138,7 +168,7 @@ export function Login() {
           <div className="mt-8 text-center">
             <button
               type="button"
-              onClick={() => setIsNewUser(!isNewUser)}
+              onClick={() => { setIsNewUser(!isNewUser); setError(""); }}
               className="font-bold text-[#F5A623] hover:text-amber-600 transition-colors"
             >
               {isNewUser

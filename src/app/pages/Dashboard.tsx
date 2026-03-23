@@ -1,33 +1,16 @@
 import { Link } from "react-router";
 import { Package, Truck, CheckCircle2, ChevronRight, Book, Film } from "lucide-react";
+import { ORDERS } from "../../data/ordersData";
 
 export function Dashboard() {
-  const orders = [
-    {
-      id: "ORD-84920",
-      type: "Storybook",
-      childName: "Emma",
-      date: "Oct 12, 2023",
-      status: "In Production",
-      image: "https://images.unsplash.com/photo-1598618137594-8e7657a6ef6a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYWdpY2FsJTIwY2hpbGRyZW4lMjBib29rJTIwY292ZXJ8ZW58MXx8fHwxNzczOTM0ODQ2fDA&ixlib=rb-4.1.0&q=80&w=1080",
-    },
-    {
-      id: "ORD-84815",
-      type: "Movie",
-      childName: "Liam",
-      date: "Sep 28, 2023",
-      status: "Delivered",
-      image: "https://images.unsplash.com/photo-1725354870984-e97f219247b4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhbmltYXRlZCUyMGNoaWxkcmVuJTIwbW92aWUlMjBwb3N0ZXJ8ZW58MXx8fHwxNzczOTM0ODQ2fDA&ixlib=rb-4.1.0&q=80&w=1080",
-    },
-    {
-      id: "ORD-85012",
-      type: "Combo",
-      childName: "Sophia",
-      date: "Nov 02, 2023",
-      status: "Pending",
-      image: "https://images.unsplash.com/photo-1598618137594-8e7657a6ef6a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYWdpY2FsJTIwY2hpbGRyZW4lMjBib29rJTIwY292ZXJ8ZW58MXx8fHwxNzczOTM0ODQ2fDA&ixlib=rb-4.1.0&q=80&w=1080",
-    }
-  ];
+  const orders = ORDERS;
+
+  // Compute summary counts dynamically
+  const totalOrders = orders.length;
+  const inProgress = orders.filter(
+    (o) => o.status !== "Delivered"
+  ).length;
+  const delivered = orders.filter((o) => o.status === "Delivered").length;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -65,12 +48,13 @@ export function Dashboard() {
             Track your magical creations and see what's new.
           </p>
         </div>
-        <Link
-          to="/shop"
-          className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-bold rounded-xl text-white bg-[#F5A623] hover:bg-amber-500 shadow-lg shadow-amber-500/30 transition-all duration-200 active:scale-[0.98] w-full md:w-auto"
+        <button
+          disabled
+          className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-bold rounded-xl text-white bg-slate-300 cursor-not-allowed w-full md:w-auto"
+          title="Coming soon!"
         >
-          Create New Magic
-        </Link>
+          Create New Magic ✨
+        </button>
       </div>
 
       {/* Summary Cards */}
@@ -81,7 +65,7 @@ export function Dashboard() {
           </div>
           <div>
             <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">Total Orders</p>
-            <p className="text-3xl font-extrabold text-[#1E293B]">3</p>
+            <p className="text-3xl font-extrabold text-[#1E293B]">{totalOrders}</p>
           </div>
         </div>
         
@@ -91,7 +75,7 @@ export function Dashboard() {
           </div>
           <div>
             <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">In Progress</p>
-            <p className="text-3xl font-extrabold text-[#1E293B]">2</p>
+            <p className="text-3xl font-extrabold text-[#1E293B]">{inProgress}</p>
           </div>
         </div>
 
@@ -101,7 +85,7 @@ export function Dashboard() {
           </div>
           <div>
             <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">Delivered</p>
-            <p className="text-3xl font-extrabold text-[#1E293B]">1</p>
+            <p className="text-3xl font-extrabold text-[#1E293B]">{delivered}</p>
           </div>
         </div>
       </div>
@@ -110,9 +94,6 @@ export function Dashboard() {
       <div>
         <div className="flex items-center justify-between mb-6 px-1">
           <h2 className="text-2xl font-extrabold text-[#1E293B]">Recent Orders</h2>
-          <button className="text-[#F5A623] font-bold hover:text-amber-600 transition-colors">
-            View All
-          </button>
         </div>
         
         <div className="grid gap-4">

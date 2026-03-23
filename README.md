@@ -1,93 +1,143 @@
-# Customer Order Tracking Portal - OnceUponMe
+# Customer Order Tracking Portal — OnceUponMe
 
-OnceUponMe is a premium, magical customer order tracking portal designed specifically to track personalized children's books and movies. The platform provides a beautiful, user-friendly interface for parents to track their child's personalized items from order placement to delivery.
-
-The design features a whimsical aesthetic with customized branding (Crown and Book logo), the `OnceUponMe` brand font, and a clean, step-by-step progress tracker.
+OnceUponMe is a premium customer order tracking portal for personalized children's books. Parents can track their order, review a digital proof of their child's custom book page-by-page, leave feedback, and approve it for printing — all from a warm, storybook-inspired interface.
 
 ## 🚀 Features
 
-*   **Magical Login Experience:** Beautiful starry background, brand-consistent typography, and a seamless login entry point (including Google sign-in UI).
-*   **Intuitive Dashboard:** A clean overview of past and current orders.
-*   **Detailed Order Tracking:** A visual, step-by-step progress graph tailored for production tracking:
-    *   Order Placed
-    *   Customization
-    *   In Production
-    *   Quality Check
-    *   Shipped
-    *   Delivered
-*   **Digital Asset Delivery:** Direct download options for personalized digital products like movies or certificates.
-*   **Fully Responsive Design:** Optimized for both mobile and desktop screens.
+- **Intuitive Dashboard:** Clean overview of all past and current orders
+- **Detailed Order Tracking:** Visual step-by-step progress: Order Placed → Customization → Review → Production → Shipped → Delivered
+- **📖 Book Review & Edit Mode:** Full-page modal to review the personalized book proof:
+  - Navigate pages with prev/next controls
+  - Add per-page comments in a live chat panel
+  - Submit change requests (saved to MongoDB) or approve for printing
+  - Comments cleared after submission — no duplicate entries
+- **Digital Asset Delivery:** Download links for personalized digital products
+- **Fully Responsive:** Optimized for mobile and desktop
 
 ## 🛠 Tech Stack
 
-*   **Framework:** [React 18](https://reactjs.org/) + [Vite](https://vitejs.dev/)
-*   **Routing:** React Router
-*   **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
-*   **UI Components:** 
-    *   [Radix UI](https://www.radix-ui.com/) (Headless Primitives)
-    *   [Lucide React](https://lucide.dev/) (Icons)
-*   **Tooling:** TypeScript (for Vite configurations)
+### Frontend
+| Tech | Role |
+|---|---|
+| [React 18](https://reactjs.org/) + [Vite](https://vitejs.dev/) | UI framework + build tool |
+| [React Router](https://reactrouter.com/) | Client-side routing |
+| [Tailwind CSS v4](https://tailwindcss.com/) | Styling |
+| [Lucide React](https://lucide.dev/) | Icons |
+| TypeScript | Type safety |
+
+### Backend
+| Tech | Role |
+|---|---|
+| [FastAPI](https://fastapi.tiangolo.com/) | REST API |
+| [Motor](https://motor.readthedocs.io/) | Async MongoDB driver |
+| [MongoDB](https://www.mongodb.com/) (local) | Persistence for review submissions |
+| [Pydantic](https://docs.pydantic.dev/) | Request/response validation |
+| [Uvicorn](https://www.uvicorn.org/) | ASGI server |
 
 ## 📦 Getting Started
 
 ### Prerequisites
 
-*   **Node.js** (v18.x or newer is recommended)
-*   **npm**, **yarn**, or **pnpm** (This project uses npm by default)
+- **Node.js** v18+
+- **Python** 3.9+
+- **MongoDB** running locally on port `27017`
+  ```bash
+  # macOS (Homebrew)
+  brew services start mongodb-community
+  ```
 
-### Installation
-
-1.  Clone the repository:
-    ```bash
-    git clone https://github.com/your-username/customer-order-tracking-portal.git
-    cd customer-order-tracking-portal
-    ```
-
-2.  Install dependencies:
-    ```bash
-    npm install
-    # or
-    pnpm install
-    ```
-
-### Running the Application
-
-Start the development server:
+### Frontend Setup
 
 ```bash
+# Install dependencies
+npm install
+
+# Start dev server (http://localhost:5173)
 npm run dev
-# or
-pnpm run dev
 ```
 
-The application will be available at `http://localhost:5173`.
+### Backend Setup
+
+```bash
+cd backend
+
+# Create and activate a virtual environment
+python3 -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install fastapi "uvicorn[standard]" motor pydantic
+
+# Start the API server (http://localhost:8000)
+uvicorn app.main:app --reload --port 8000
+```
+
+> The Vite dev server proxies `/api` requests to FastAPI — no CORS issues in development.
 
 ### Building for Production
 
-To create a production-ready bundle:
-
 ```bash
 npm run build
-# or
-pnpm run build
 ```
 
-The output will be placed in the `dist/` directory.
+Output goes to `dist/`.
 
 ## 📁 Project Structure
 
 ```text
-src/
-├── app/
-│   ├── components/  # Reusable UI components and layouts (e.g., Layout.tsx)
-│   ├── pages/       # Page components (Login, Dashboard, OrderDetail, etc.)
-│   └── routes.tsx   # React Router configuration
-├── assets/          # Static assets (fonts, logo, background images)
-├── styles/          # Global styles, Tailwind configuration, and Custom fonts
-├── main.tsx         # Application entry point
-└── vite-env.d.ts    # TypeScript definitions for static asset imports
+.
+├── backend/                 # FastAPI backend
+│   ├── app/
+│   │   ├── main.py          # FastAPI app + CORS
+│   │   ├── database.py      # MongoDB connection (Motor)
+│   │   ├── models.py        # Pydantic schemas
+│   │   └── routes/
+│   │       └── reviews.py   # POST/GET /api/reviews/
+│   └── requirements.txt
+│
+└── src/                     # React frontend
+    ├── api/
+    │   └── reviewApi.ts     # API client for review submission
+    ├── app/
+    │   ├── components/
+    │   │   └── book/        # Book Review feature components
+    │   │       ├── BookViewer.tsx
+    │   │       ├── BookPage.tsx
+    │   │       ├── PageComments.tsx
+    │   │       ├── CommentInput.tsx
+    │   │       ├── ReviewActions.tsx
+    │   │       └── types.ts
+    │   └── pages/           # Login, Dashboard, OrderDetail
+    ├── data/
+    │   └── mockData.ts      # Mock book pages and initial comments
+    └── styles/              # Global CSS + custom fonts
 ```
 
-## 🎨 Design & Branding Details
+## 🔌 API Reference
 
-*   **Custom Fonts:** The platform utilizes the `OnceUponMe` custom `.woff2` fonts (loaded locally) alongside `Nunito` from Google Fonts.
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/health` | Health check |
+| `POST` | `/api/reviews/` | Submit a book review (comments + order ID) |
+| `GET` | `/api/reviews/{order_id}` | Fetch all reviews for an order |
+
+**Example POST payload:**
+```json
+{
+  "order_id": "ORD-001",
+  "comments": [
+    {
+      "page_number": 2,
+      "text": "Make the dragon friendlier",
+      "author": "Mama Sarah",
+      "created_at": "2026-03-23T08:00:00Z"
+    }
+  ]
+}
+```
+
+## 🎨 Design & Branding
+
+- **Theme:** Warm parchment (`#FDFBF7`), white cards, amber accent (`#F5A623`)
+- **Fonts:** `OnceUponMe` custom `.woff2` + `Nunito` from Google Fonts
+- **Design system:** Generated via [Google Stitch](https://stitch.withgoogle.com) ("Gilded Parchment" system)

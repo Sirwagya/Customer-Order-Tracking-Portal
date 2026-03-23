@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { X, ChevronLeft } from "lucide-react";
 import { BookPage } from "./BookPage";
 import { PageComments } from "./PageComments";
 import { ReviewActions } from "./ReviewActions";
 import type { Comment } from "./types";
-import { MOCK_BOOK_PAGES, MOCK_INITIAL_COMMENTS } from "../../../data/mockData";
+import { MOCK_BOOK_PAGES } from "../../../data/mockData";
+import { submitReview } from "../../../api/reviewApi";
 
 interface BookViewerProps {
   readonly onClose: () => void;
@@ -18,7 +19,11 @@ export const BookViewer: React.FC<BookViewerProps> = ({
   childName = "Emma",
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [comments, setComments] = useState<Comment[]>(MOCK_INITIAL_COMMENTS);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Track IDs of comments added in this session (new/unsaved ones)
+  const sessionCommentIds = useRef<Set<string>>(new Set());
 
   const totalPages = MOCK_BOOK_PAGES.length;
   const currentImage =
@@ -34,32 +39,61 @@ export const BookViewer: React.FC<BookViewerProps> = ({
   };
 
   const handleAddComment = (text: string) => {
+    const id = crypto.randomUUID();
     const newComment: Comment = {
-      id: Math.random().toString(36).substr(2, 9),
+      id,
       pageNumber: currentPage,
       text,
       status: "open",
       createdAt: new Date().toISOString(),
       author: "You",
     };
+    sessionCommentIds.current.add(id);
     setComments((prev) => [...prev, newComment]);
   };
 
-  const handleRequestChanges = () => {
-    const openComments = comments.filter((c) => c.status === "open");
-    console.log(
-      `Requested changes for order ${orderId} with ${openComments.length} comments`
-    );
-    alert(
-      `Change request submitted with ${openComments.length} items! We'll get right on it ✨`
-    );
-    onClose();
+  const handleRequestChanges = async () => {
+    // Only submit comments from this session
+    const newComments = comments.filter((c) => sessionCommentIds.current.has(c.id));
+    if (newComments.length === 0) return;
+
+    setIsSubmitting(true);
+    try {
+      await submitReview(orderId, newComments);
+      sessionCommentIds.current.clear();
+      setComments([]);
+      alert("Changes submitted successfully! We'll get right on it ✨");
+      onClose();
+    } catch (err) {
+      console.error("Failed to submit review:", err);
+      alert("Failed to submit. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleApprove = () => {
-    console.log(`Approved order ${orderId}`);
-    alert("Book approved for printing! Your story is on its way 🌟");
-    onClose();
+  const handleApprove = async () => {
+    setIsSubmitting(true);
+    try {
+      const approvalComment: Comment = {
+        id: crypto.randomUUID(),
+        pageNumber: 0,
+        text: "Book approved for printing",
+        status: "resolved",
+        createdAt: new Date().toISOString(),
+        author: "You",
+      };
+      await submitReview(orderId, [approvalComment]);
+      sessionCommentIds.current.clear();
+      setComments([]);
+      alert("Book approved for printing! Your story is on its way 🌟");
+      onClose();
+    } catch (err) {
+      console.error("Failed to approve:", err);
+      alert("Failed to approve. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -115,6 +149,7 @@ export const BookViewer: React.FC<BookViewerProps> = ({
       <ReviewActions
         onRequestChanges={handleRequestChanges}
         onApprove={handleApprove}
+        isSubmitting={isSubmitting}
       />
     </div>
   );
