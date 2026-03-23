@@ -1,11 +1,12 @@
-import React, { useState, useRef } from "react";
-import { X, ChevronLeft } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { X, ChevronLeft, Loader2 } from "lucide-react";
 import { BookPage } from "./BookPage";
 import { PageComments } from "./PageComments";
 import { ReviewActions } from "./ReviewActions";
-import type { Comment } from "./types";
+import type { Comment, BookPageData } from "./types";
 import { MOCK_BOOK_PAGES } from "../../../data/mockData";
 import { submitReview } from "../../../api/reviewApi";
+import { fetchBookPages } from "../../../api/bookApi";
 
 interface BookViewerProps {
   readonly onClose: () => void;
@@ -21,13 +22,37 @@ export const BookViewer: React.FC<BookViewerProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [comments, setComments] = useState<Comment[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pages, setPages] = useState<BookPageData[]>(MOCK_BOOK_PAGES);
+  const [isLoadingPages, setIsLoadingPages] = useState(true);
 
   // Track IDs of comments added in this session (new/unsaved ones)
   const sessionCommentIds = useRef<Set<string>>(new Set());
 
-  const totalPages = MOCK_BOOK_PAGES.length;
+  // Fetch book pages from the backend on mount
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadPages() {
+      try {
+        const apiPages = await fetchBookPages(orderId);
+        if (!cancelled && apiPages.length > 0) {
+          setPages(apiPages);
+        }
+        // If apiPages is empty, we keep the fallback MOCK_BOOK_PAGES
+      } catch (err) {
+        console.warn("Could not load book pages from API, using fallback:", err);
+      } finally {
+        if (!cancelled) setIsLoadingPages(false);
+      }
+    }
+
+    loadPages();
+    return () => { cancelled = true; };
+  }, [orderId]);
+
+  const totalPages = pages.length;
   const currentImage =
-    MOCK_BOOK_PAGES.find((p) => p.pageNumber === currentPage)?.imageUrl || "";
+    pages.find((p) => p.pageNumber === currentPage)?.imageUrl || "";
   const currentComments = comments.filter((c) => c.pageNumber === currentPage);
 
   const handleNext = () => {
@@ -123,26 +148,33 @@ export const BookViewer: React.FC<BookViewerProps> = ({
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto pt-6 pb-32 px-4 sm:px-8 max-w-7xl mx-auto w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-10 gap-8 items-start">
-          {/* Left: Book Page View (60%) */}
-          <div className="lg:col-span-6">
-            <BookPage
-              imageUrl={currentImage}
-              pageNumber={currentPage}
-              totalPages={totalPages}
-              onNext={handleNext}
-              onPrev={handlePrev}
-            />
+        {isLoadingPages ? (
+          <div className="flex flex-col items-center justify-center h-full gap-4">
+            <Loader2 className="w-10 h-10 text-[#F5A623] animate-spin" />
+            <p className="text-slate-500 font-medium">Loading book pages…</p>
           </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-10 gap-8 items-start">
+            {/* Left: Book Page View (60%) */}
+            <div className="lg:col-span-6">
+              <BookPage
+                imageUrl={currentImage}
+                pageNumber={currentPage}
+                totalPages={totalPages}
+                onNext={handleNext}
+                onPrev={handlePrev}
+              />
+            </div>
 
-          {/* Right: Comments Panel (40%) */}
-          <aside className="lg:col-span-4">
-            <PageComments
-              comments={currentComments}
-              onAddComment={handleAddComment}
-            />
-          </aside>
-        </div>
+            {/* Right: Comments Panel (40%) */}
+            <aside className="lg:col-span-4">
+              <PageComments
+                comments={currentComments}
+                onAddComment={handleAddComment}
+              />
+            </aside>
+          </div>
+        )}
       </main>
 
       {/* Bottom Action Bar */}

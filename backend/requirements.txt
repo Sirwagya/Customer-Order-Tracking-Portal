@@ -2,3 +2,8 @@ fastapi
 uvicorn[standard]
 motor
 pydantic
+pdf2image
+Pillow
+supabase
+python-dotenv
+python-multipart

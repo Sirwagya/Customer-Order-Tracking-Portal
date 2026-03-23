@@ -21,3 +21,14 @@ class ReviewResponse(BaseModel):
     comments: list[ReviewComment]
     submitted_at: str
     status: str = "submitted"
+
+
+class BookPageResponse(BaseModel):
+    page_number: int
+    image_url: str
+
+
+class BookUploadResponse(BaseModel):
+    order_id: str
+    total_pages: int
+    pages: list[BookPageResponse]

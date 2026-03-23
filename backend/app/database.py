@@ -11,3 +11,7 @@ db = client[DATABASE_NAME]
 
 def get_reviews_collection():
     return db["reviews"]
+
+
+def get_books_collection():
+    return db["books"]
